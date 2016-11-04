@@ -1,5 +1,7 @@
 package edu.upenn.cis455.mapreduce.job;
 
+import java.util.Iterator;
+
 import edu.upenn.cis455.mapreduce.Context;
 import edu.upenn.cis455.mapreduce.Job;
 
@@ -12,7 +14,7 @@ public class WordCount implements Job {
 
   }
   
-  public void reduce(String key, String[] values, Context context)
+  public void reduce(String key, Iterator<String> values, Context context)
   {
     // Your reduce function for WordCount goes here
 
