@@ -123,7 +123,7 @@ public class DistributedCluster implements Runnable {
 	 */
 	private void createSpoutInstances(Topology topo, Config config) throws ClassNotFoundException {
 		for (String key: topo.getSpouts().keySet()) {
-			Pair<Class<?>, Integer> spout = topo.getSpout(key);
+			StringIntPair spout = topo.getSpout(key);
 			
 			SpoutOutputCollector collector = 
 					new SpoutOutputCollector(context);
@@ -131,11 +131,11 @@ public class DistributedCluster implements Runnable {
 			spoutStreams.put(key, new ArrayList<IRichSpout>());
 			for (int i = 0; i < spout.getRight(); i++)
 				try {
-					IRichSpout newSpout = (IRichSpout)spout.getLeft().newInstance();
+					IRichSpout newSpout = (IRichSpout)Class.forName(spout.getLeft()).newInstance();
 					
 					newSpout.open(config, context, collector);
 					spoutStreams.get(key).add(newSpout);
-					log.debug("Created a spout executor " + key + "/" + newSpout.getExecutorId() + " of type " + spout.getLeft().getName());
+					log.debug("Created a spout executor " + key + "/" + newSpout.getExecutorId() + " of type " + spout.getLeft());
 				} catch (InstantiationException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -155,7 +155,7 @@ public class DistributedCluster implements Runnable {
 	 */
 	private void createBoltInstances(Topology topo, Config config) throws ClassNotFoundException {
 		for (String key: topo.getBolts().keySet()) {
-			Pair<Class<?>, Integer> bolt = topo.getBolt(key);
+			StringIntPair bolt = topo.getBolt(key);
 			
 			OutputCollector collector = new OutputCollector(context);
 			
@@ -163,10 +163,10 @@ public class DistributedCluster implements Runnable {
 			int localExecutors = bolt.getRight();
 			for (int i = 0; i < localExecutors; i++)
 				try {
-					IRichBolt newBolt = (IRichBolt)bolt.getLeft().newInstance();
+					IRichBolt newBolt = (IRichBolt)Class.forName(bolt.getLeft()).newInstance();
 					newBolt.prepare(config, context, collector);
 					boltStreams.get(key).add(newBolt);
-					log.debug("Created a bolt executor " + key + "/" + newBolt.getExecutorId() + " of type " + bolt.getLeft().getName());
+					log.debug("Created a bolt executor " + key + "/" + newBolt.getExecutorId() + " of type " + bolt.getLeft());
 				} catch (InstantiationException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

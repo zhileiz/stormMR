@@ -20,8 +20,6 @@ package edu.upenn.cis.stormlite;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.tuple.Pair;
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import edu.upenn.cis.stormlite.bolt.BoltDeclarer;
@@ -63,9 +61,9 @@ public class Topology {
 		return spouts;
 	}
 	
-	public Pair<Class<?>, Integer> getSpout(String key) throws ClassNotFoundException {
+	public StringIntPair getSpout(String key) throws ClassNotFoundException {
 		StringIntPair entry = spouts.get(key);
-		return Pair.of(Class.forName(entry.getLeft()), entry.getRight());
+		return entry;
 	}
 
 	public void setSpouts(String name, Class<? extends IRichSpout> spoutClass, Integer parallel) {
@@ -76,9 +74,9 @@ public class Topology {
 		return bolts;
 	}
 	
-	public Pair<Class<?>, Integer> getBolt(String key) throws ClassNotFoundException {
+	public StringIntPair getBolt(String key) throws ClassNotFoundException {
 		StringIntPair entry = bolts.get(key);
-		return Pair.of(Class.forName(entry.getLeft()), entry.getRight());
+		return entry;
 	}
 
 	public void setBolts(String bolt, Class<? extends IRichBolt> boltClass, Integer parallel) {
