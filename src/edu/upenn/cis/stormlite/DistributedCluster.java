@@ -81,12 +81,16 @@ public class DistributedCluster implements Runnable {
 		
 		context = new TopologyContext(topo, taskQueue);
 		
+		boltStreams.clear();
+		spoutStreams.clear();
+		streams.clear();
+		
 		createSpoutInstances(topo, config);
-		scheduleSpouts();
 		
 		createBoltInstances(topo, config);
 		
 		createRoutes(topo, config);
+		scheduleSpouts();
 		
 		return context;
 	}
