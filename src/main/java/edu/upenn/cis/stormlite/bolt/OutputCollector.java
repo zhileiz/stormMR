@@ -32,7 +32,7 @@ import edu.upenn.cis455.mapreduce.Context;
  *
  */
 public class OutputCollector implements IOutputCollector, Context {
-	StreamRouter router;
+	List<StreamRouter> routers;
 	TopologyContext context;
 	
 	public OutputCollector(TopologyContext context) {
@@ -41,7 +41,7 @@ public class OutputCollector implements IOutputCollector, Context {
 
 	@Override
 	public void setRouter(StreamRouter router) {
-		this.router = router;
+		this.routers.add(router);
 	}
 	
 	/**
@@ -49,15 +49,17 @@ public class OutputCollector implements IOutputCollector, Context {
 	 * @param tuple
 	 */
 	public void emit(List<Object> tuple) {
-		router.execute(tuple, context);
+		for (StreamRouter router: routers)
+			router.execute(tuple, context);
 	}
 
 	public void emitEndOfStream() {
-		router.executeEndOfStream(context);
+		for (StreamRouter router: routers)
+			router.executeEndOfStream(context);
 	}
 
-	public StreamRouter getRouter() {
-		return router;
+	public List<StreamRouter> getRouters() {
+		return routers;
 	}
 
 	@Override

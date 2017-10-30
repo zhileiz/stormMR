@@ -30,7 +30,7 @@ import edu.upenn.cis.stormlite.routers.StreamRouter;
  *
  */
 public class SpoutOutputCollector implements IOutputCollector  {
-	StreamRouter router;
+	List<StreamRouter> routers;
 	TopologyContext context;
 	
 	public SpoutOutputCollector(TopologyContext context) {
@@ -39,7 +39,7 @@ public class SpoutOutputCollector implements IOutputCollector  {
 	
 	@Override
 	public void setRouter(StreamRouter router) {
-		this.router = router;
+		this.routers.add(router);
 	}
 
 	/**
@@ -47,11 +47,13 @@ public class SpoutOutputCollector implements IOutputCollector  {
 	 * @param tuple
 	 */
 	public void emit(List<Object> tuple) {
-		router.execute(tuple, context);
+		for (StreamRouter router: routers)
+			router.execute(tuple, context);
 	}
 
 	public void emitEndOfStream() {
-		router.executeEndOfStream(context);
+		for (StreamRouter router: routers)
+			router.executeEndOfStream(context);
 	}
 
 }
