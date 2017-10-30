@@ -1,14 +1,11 @@
-package test.edu.upenn.cis.stormlite;
+package edu.upenn.cis.stormlite;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.upenn.cis.stormlite.Config;
-import edu.upenn.cis.stormlite.LocalCluster;
-import edu.upenn.cis.stormlite.Topology;
-import edu.upenn.cis.stormlite.TopologyBuilder;
 import edu.upenn.cis.stormlite.tuple.Fields;
 
 /**
@@ -34,7 +31,7 @@ import edu.upenn.cis.stormlite.tuple.Fields;
  * limitations under the License.
  */
 public class TestWordCountStreaming {
-	static Logger log = Logger.getLogger(TestWordCountStreaming.class);
+	static Logger log = LogManager.getLogger(TestWordCountStreaming.class);
 
 	private static final String WORD_SPOUT = "WORD_SPOUT";
     private static final String COUNT_BOLT = "COUNT_BOLT";

@@ -1,13 +1,12 @@
-package test.edu.upenn.cis.stormlite;
+package edu.upenn.cis.stormlite;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import edu.upenn.cis.stormlite.OutputFieldsDeclarer;
-import edu.upenn.cis.stormlite.TopologyContext;
 import edu.upenn.cis.stormlite.bolt.IRichBolt;
 import edu.upenn.cis.stormlite.bolt.OutputCollector;
 import edu.upenn.cis.stormlite.routers.StreamRouter;
@@ -39,7 +38,7 @@ import edu.upenn.cis.stormlite.tuple.Values;
  */
 
 public class WordCounter implements IRichBolt {
-	static Logger log = Logger.getLogger(WordCounter.class);
+	static Logger log = LogManager.getLogger(WordCounter.class);
 	
 	Fields schema = new Fields("word", "count");
 	

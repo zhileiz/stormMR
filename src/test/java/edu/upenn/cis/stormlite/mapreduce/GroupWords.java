@@ -1,4 +1,4 @@
-package test.edu.upenn.cis.stormlite.mapreduce;
+package edu.upenn.cis.stormlite.mapreduce;
 
 import java.util.Iterator;
 

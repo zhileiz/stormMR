@@ -1,4 +1,4 @@
-package test.edu.upenn.cis.stormlite.mapreduce;
+package edu.upenn.cis.stormlite.mapreduce;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -7,7 +7,8 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,7 +23,7 @@ import edu.upenn.cis.stormlite.distributed.WorkerJob;
 import edu.upenn.cis.stormlite.spout.FileSpout;
 import edu.upenn.cis.stormlite.tuple.Fields;
 import edu.upenn.cis455.mapreduce.worker.WorkerServer;
-import test.edu.upenn.cis.stormlite.PrintBolt;
+import edu.upenn.cis.stormlite.PrintBolt;
 
 /**
  * Simple word counter test case, largely derived from
@@ -47,7 +48,7 @@ import test.edu.upenn.cis.stormlite.PrintBolt;
  * limitations under the License.
  */
 public class TestMapReduce {
-	static Logger log = Logger.getLogger(TestMapReduce.class);
+	static Logger log = LogManager.getLogger(TestMapReduce.class);
 
 	private static final String WORD_SPOUT = "WORD_SPOUT";
     private static final String MAP_BOLT = "MAP_BOLT";

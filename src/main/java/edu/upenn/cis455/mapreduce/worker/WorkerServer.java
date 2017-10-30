@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -20,9 +20,6 @@ import edu.upenn.cis.stormlite.distributed.WorkerHelper;
 import edu.upenn.cis.stormlite.distributed.WorkerJob;
 import edu.upenn.cis.stormlite.routers.StreamRouter;
 import edu.upenn.cis.stormlite.tuple.Tuple;
-import spark.Request;
-import spark.Response;
-import spark.Route;
 import spark.Spark;
 
 /**

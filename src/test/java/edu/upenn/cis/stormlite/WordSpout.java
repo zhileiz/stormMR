@@ -1,4 +1,4 @@
-package test.edu.upenn.cis.stormlite;
+package edu.upenn.cis.stormlite;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -8,10 +8,9 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import edu.upenn.cis.stormlite.OutputFieldsDeclarer;
-import edu.upenn.cis.stormlite.TopologyContext;
 import edu.upenn.cis.stormlite.routers.StreamRouter;
 import edu.upenn.cis.stormlite.spout.IRichSpout;
 import edu.upenn.cis.stormlite.spout.SpoutOutputCollector;
@@ -42,7 +41,7 @@ import edu.upenn.cis.stormlite.tuple.Values;
  * limitations under the License.
  */
 public class WordSpout implements IRichSpout {
-	static Logger log = Logger.getLogger(WordSpout.class);
+	static Logger log = LogManager.getLogger(WordSpout.class);
 
     /**
      * To make it easier to debug: we have a unique ID for each

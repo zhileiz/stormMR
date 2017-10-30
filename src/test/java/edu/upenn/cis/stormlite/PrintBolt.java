@@ -1,9 +1,10 @@
-package test.edu.upenn.cis.stormlite;
+package edu.upenn.cis.stormlite;
 
 import java.util.Map;
 import java.util.UUID;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import edu.upenn.cis.stormlite.OutputFieldsDeclarer;
 import edu.upenn.cis.stormlite.TopologyContext;
@@ -21,7 +22,7 @@ import edu.upenn.cis.stormlite.tuple.Tuple;
  *
  */
 public class PrintBolt implements IRichBolt {
-	static Logger log = Logger.getLogger(PrintBolt.class);
+	static Logger log = LogManager.getLogger(PrintBolt.class);
 	
 	Fields myFields = new Fields();
 
