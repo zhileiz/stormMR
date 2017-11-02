@@ -22,6 +22,7 @@ import edu.upenn.cis.stormlite.distributed.WorkerHelper;
 import edu.upenn.cis.stormlite.distributed.WorkerJob;
 import edu.upenn.cis.stormlite.spout.FileSpout;
 import edu.upenn.cis.stormlite.tuple.Fields;
+import edu.upenn.cis455.mapreduce.master.MasterServer;
 import edu.upenn.cis455.mapreduce.worker.WorkerServer;
 import edu.upenn.cis.stormlite.PrintBolt;
 
@@ -87,7 +88,7 @@ public class TestMapReduce {
         Config config = new Config();
         
         // Complete list of workers, comma-delimited
-        config.put("workerList", "[127.0.0.1:8000,127.0.0.1:8001]");
+        config.put("workerList", "[127.0.0.1:8080,127.0.0.1:8001,127.0.0.1:8002]");
 
         // Build the local worker
         
@@ -100,6 +101,8 @@ public class TestMapReduce {
 
         // If we're the Master, we need to initiate the computation
         if (args.length > 1) {
+        	MasterServer.registerStatusPage();
+        	
 			// Let the server start up
     		System.out.println("Press [Enter] to launch query, once nodes are alive...");
     		(new BufferedReader(new InputStreamReader(System.in))).readLine();

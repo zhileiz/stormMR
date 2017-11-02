@@ -1,6 +1,6 @@
 package edu.upenn.cis455.mapreduce.worker;
 
-import static spark.Spark.setPort;
+import static spark.Spark.*;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -43,7 +43,7 @@ public class WorkerServer {
 		
 		log.info("Creating server listener at socket " + myPort);
 	
-		setPort(myPort);
+		port(myPort);
     	final ObjectMapper om = new ObjectMapper();
         om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
         Spark.post("/definejob", (req, res) -> {
@@ -57,7 +57,8 @@ public class WorkerServer {
 		        				" on machine " + workerJob.getConfig().get("workerIndex"));
 						contexts.add(cluster.submitTopology(workerJob.getConfig().get("job"), workerJob.getConfig(), 
 								workerJob.getTopology()));
-						
+
+						// Add a new topology
 						synchronized (topologies) {
 							topologies.add(workerJob.getConfig().get("job"));
 						}
@@ -78,7 +79,8 @@ public class WorkerServer {
         
         Spark.post("/runjob", (req, res) -> {
         		log.info("Starting job!");
-				cluster.startTopology();
+
+        		// TODO: start the topology on the DistributedCluster, which should start the dataflow
 				
 				return "Started";
         });
@@ -96,13 +98,11 @@ public class WorkerServer {
 					if (contexts.isEmpty())
 						log.error("No topology context -- were we initialized??");
 					
+					// Instrumentation for tracking progress
 			    	if (!tuple.isEndOfStream())
 			    		contexts.get(contexts.size() - 1).incSendOutputs(router.getKey(tuple.getValues()));
-					
-					if (tuple.isEndOfStream())
-						router.executeEndOfStreamLocally(contexts.get(contexts.size() - 1));
-					else
-						router.executeLocally(tuple, contexts.get(contexts.size() - 1));
+			    	
+			    	// TODO: handle tuple vs end of stream locally
 					
 					return "OK";
 				} catch (IOException e) {
@@ -148,5 +148,28 @@ public class WorkerServer {
 		}
 		
     	cluster.shutdown();
+	}
+
+	/**
+	 * Simple launch for worker server.  Note that you may want to change / replace
+	 * most of this.
+	 * 
+	 * @param args
+	 * @throws MalformedURLException
+	 */
+	public static void main(String args[]) throws MalformedURLException {
+		if (args.length < 1) {
+			System.out.println("Usage: WorkerServer [port number]");
+			System.exit(1);
+		}
+		
+		int myPort = Integer.valueOf(args[0]);
+		
+		System.out.println("Worker node startup, on port " + myPort);
+		
+		WorkerServer worker = new WorkerServer(myPort);
+		
+		// TODO: you may want to adapt parts of edu.upenn.cis.stormlite.mapreduce.TestMapReduce
+		// here
 	}
 }

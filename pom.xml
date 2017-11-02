@@ -16,6 +16,8 @@
             <java.version>1.8</java.version>
     </properties>
     
+    <!--  These are useful if you want to include a local repo with your HW1M2 code instead of Spark -->
+    <!--
 <repositories>
     <repository>
         <id>maven-repository</id>
@@ -23,13 +25,14 @@
     </repository>
 </repositories>
     <dependencies>
-    <!--
 <dependency>
 	<groupId>edu.upenn.cis.cis455</groupId>
 	<artifactId>homework-1</artifactId>
 	<version>1.0-SNAPSHOT</version>
 </dependency>
 -->
+
+    <dependencies>
 <!-- https://mvnrepository.com/artifact/com.sparkjava/spark-core -->
 <dependency>
     <groupId>com.sparkjava</groupId>
@@ -64,6 +67,12 @@
         <artifactId>log4j-api</artifactId>
         <version>2.8.2</version>
       </dependency>
+<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-slf4j-impl -->
+<dependency>
+    <groupId>org.apache.logging.log4j</groupId>
+    <artifactId>log4j-slf4j-impl</artifactId>
+    <version>2.8.2</version>
+</dependency>
         <!-- https://mvnrepository.com/artifact/com.sleepycat/je -->
         <dependency>
             <groupId>com.sleepycat</groupId>
@@ -124,7 +133,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>edu.upenn.cis.cis455.crawler.WebInterface</mainClass>
+                            <mainClass>edu.upenn.cis455.mapreduce.master.MasterServer</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -135,30 +144,29 @@
               <version>1.6.0</version>
               <executions>
               <execution>
-                <id>crawler</id>
+                <id>master</id>
                 <goals><goal>java</goal></goals>
               <configuration>
-                <mainClass>edu.upenn.cis.cis455.crawler.Crawler</mainClass>
+                <mainClass>edu.upenn.cis455.mapreduce.master.MasterServer</mainClass>
                 <arguments>
-                  <argument>https://dbappserv.cis.upenn.edu/crawltest.html</argument>
-                  <argument>./database</argument>
-                  <argument>1</argument>
-                  <argument>10</argument>
+                  <argument>0</argument>
+                  <argument>master</argument>
                 </arguments>
               </configuration>
               </execution>
               <execution>
-                <id>web</id>
+                <id>worker1</id>
                 <goals><goal>java</goal></goals>
               </execution>
               </executions>
               <configuration>
-                <mainClass>edu.upenn.cis.cis455.crawler.WebInterface</mainClass>
+                <mainClass>edu.upenn.cis455.mapreduce.worker.WorkerServer</mainClass>
                 <arguments>
-                  <argument>./database</argument>
-                  <argument>/projects/555-hw2/www</argument>
+                  <argument>8001</argument>
+                  <argument>1</argument>
                 </arguments>
               </configuration>
+              <!-- TODO: create worker2 -->
             </plugin>
         </plugins>
     </build>
