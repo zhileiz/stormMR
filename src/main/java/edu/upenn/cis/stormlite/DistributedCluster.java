@@ -130,14 +130,14 @@ public class DistributedCluster implements Runnable {
 		for (String key: topo.getSpouts().keySet()) {
 			StringIntPair spout = topo.getSpout(key);
 			
-			SpoutOutputCollector collector = 
-					new SpoutOutputCollector(context);
-
 			spoutStreams.put(key, new ArrayList<IRichSpout>());
 			for (int i = 0; i < spout.getRight(); i++)
 				try {
 					IRichSpout newSpout = (IRichSpout)Class.forName(spout.getLeft()).newInstance();
 					
+					SpoutOutputCollector collector = 
+							new SpoutOutputCollector(context);
+
 					newSpout.open(config, context, collector);
 					spoutStreams.get(key).add(newSpout);
 					log.debug("Created a spout executor " + key + "/" + newSpout.getExecutorId() + " of type " + spout.getLeft());
@@ -162,12 +162,12 @@ public class DistributedCluster implements Runnable {
 		for (String key: topo.getBolts().keySet()) {
 			StringIntPair bolt = topo.getBolt(key);
 			
-			OutputCollector collector = new OutputCollector(context);
-			
 			boltStreams.put(key, new ArrayList<IRichBolt>());
 			int localExecutors = bolt.getRight();
 			for (int i = 0; i < localExecutors; i++)
 				try {
+					OutputCollector collector = new OutputCollector(context);
+					
 					IRichBolt newBolt = (IRichBolt)Class.forName(bolt.getLeft()).newInstance();
 					newBolt.prepare(config, context, collector);
 					boltStreams.get(key).add(newBolt);
