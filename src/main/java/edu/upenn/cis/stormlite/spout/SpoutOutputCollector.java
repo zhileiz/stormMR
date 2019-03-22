@@ -17,6 +17,7 @@
  */
 package edu.upenn.cis.stormlite.spout;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import edu.upenn.cis.stormlite.IOutputCollector;
@@ -30,7 +31,7 @@ import edu.upenn.cis.stormlite.routers.StreamRouter;
  *
  */
 public class SpoutOutputCollector implements IOutputCollector  {
-	List<StreamRouter> routers;
+	List<StreamRouter> routers = new ArrayList<>();
 	TopologyContext context;
 	
 	public SpoutOutputCollector(TopologyContext context) {

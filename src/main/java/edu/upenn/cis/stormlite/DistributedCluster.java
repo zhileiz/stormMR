@@ -41,6 +41,7 @@ import edu.upenn.cis.stormlite.distributed.WorkerHelper;
 import edu.upenn.cis.stormlite.routers.StreamRouter;
 import edu.upenn.cis.stormlite.spout.IRichSpout;
 import edu.upenn.cis.stormlite.spout.SpoutOutputCollector;
+import edu.upenn.cis.stormlite.tasks.ITask;
 import edu.upenn.cis.stormlite.tasks.SpoutTask;
 
 /**
@@ -70,10 +71,9 @@ public class DistributedCluster implements Runnable {
 	
 	ObjectMapper mapper = new ObjectMapper();
 	
-	ExecutorService executor = Executors.newFixedThreadPool(1);	//we'll do a single threaded pool to avoid races
-																// between EOS propagation and tuple propagation!
+	ExecutorService executor = Executors.newFixedThreadPool(10);
 	
-	Queue<Runnable> taskQueue = new ConcurrentLinkedQueue<Runnable>();
+	Queue<ITask> taskQueue = new ConcurrentLinkedQueue<ITask>();
 	
 
 	public TopologyContext submitTopology(String name, Config config, 

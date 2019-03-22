@@ -27,25 +27,32 @@ import edu.upenn.cis.stormlite.spout.IRichSpout;
  * @author zives
  *
  */
-public class SpoutTask implements Runnable {
+public class SpoutTask implements ITask {
 	
 	IRichSpout spout;
-	Queue<Runnable> queue;
+	Queue<ITask> queue;
 	
-	public SpoutTask(IRichSpout theSpout, Queue<Runnable> theQueue) {
+	public SpoutTask(IRichSpout theSpout, Queue<ITask> theQueue) {
 		spout = theSpout;
 		queue = theQueue;
 	}
 
 	@Override
 	public void run() {
-		spout.nextTuple();
-		
-		// Schedule ourselves again at the end of the queue
-		queue.add(this);
+		synchronized (spout ) {
+			spout.nextTuple();
+			
+			// Schedule ourselves again at the end of the queue
+			queue.add(this);
+		}
 	}
 	
 	public String toString() {
+		return spout.getExecutorId();
+	}
+
+	@Override
+	public String getStream() {
 		return spout.getExecutorId();
 	}
 

@@ -32,7 +32,7 @@ import edu.upenn.cis455.mapreduce.Context;
  *
  */
 public class OutputCollector implements IOutputCollector, Context {
-	List<StreamRouter> routers;
+	List<StreamRouter> routers = new ArrayList<>();
 	TopologyContext context;
 	
 	public OutputCollector(TopologyContext context) {

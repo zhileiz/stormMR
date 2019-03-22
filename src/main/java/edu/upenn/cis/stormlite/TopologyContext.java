@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Queue;
 
 import edu.upenn.cis.stormlite.routers.StreamRouter;
+import edu.upenn.cis.stormlite.tasks.ITask;
 
 /**
  * Information about the execution of a topology, including
@@ -33,7 +34,7 @@ import edu.upenn.cis.stormlite.routers.StreamRouter;
 public class TopologyContext {
 	Topology topology;
 	
-	Queue<Runnable> taskQueue;
+	Queue<ITask> taskQueue;
 	
 	public static enum STATE {INIT, MAP, REDUCE, DONE};
 	
@@ -50,7 +51,7 @@ public class TopologyContext {
 	 */
 	Map<String,StreamRouter> next = new HashMap<>();
 	
-	public TopologyContext(Topology topo, Queue<Runnable> theTaskQueue) {
+	public TopologyContext(Topology topo, Queue<ITask> theTaskQueue) {
 		topology = topo;
 		taskQueue = theTaskQueue;
 	}
@@ -63,7 +64,7 @@ public class TopologyContext {
 		this.topology = topo;
 	}
 	
-	public void addStreamTask(Runnable next) {
+	public void addStreamTask(ITask next) {
 		taskQueue.add(next);
 	}
 

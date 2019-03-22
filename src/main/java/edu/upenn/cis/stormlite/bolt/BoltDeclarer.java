@@ -178,7 +178,8 @@ public class BoltDeclarer implements Serializable {
 				router = new First();
 			} else if (getType().equals(ALL)) {
 			    router = new Broadcast();
-			}
+			} else
+				throw new UnsupportedOperationException();
 		
 		return router;
 	}
