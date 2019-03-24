@@ -61,12 +61,12 @@ public class TestMapReduce {
         config.put("job", "MyJob1");
         
         // IP:port for /workerstatus to be sent
-        config.put("master", "127.0.0.1:8080");
+        config.put("master", "127.0.0.1:8088");
         
         // Class with map function
-        config.put("mapClass", "test.edu.upenn.cis.stormlite.mapreduce.GroupWords");
+        config.put("mapClass", "edu.upenn.cis.stormlite.mapreduce.GroupWords");
         // Class with reduce function
-        config.put("reduceClass", "test.edu.upenn.cis.stormlite.mapreduce.GroupWords");
+        config.put("reduceClass", "edu.upenn.cis.stormlite.mapreduce.GroupWords");
         
         // Numbers of executors (per node)
         config.put("spoutExecutors", "1");
@@ -88,7 +88,7 @@ public class TestMapReduce {
         Config config = new Config();
         
         // Complete list of workers, comma-delimited
-        config.put("workerList", "[127.0.0.1:8080,127.0.0.1:8001,127.0.0.1:8002]");
+        config.put("workerList", "[127.0.0.1:8088,127.0.0.1:8001,127.0.0.1:8002]");
 
         // Build the local worker
         

@@ -20,6 +20,7 @@ import edu.upenn.cis.stormlite.distributed.WorkerHelper;
 import edu.upenn.cis.stormlite.distributed.WorkerJob;
 import edu.upenn.cis.stormlite.routers.StreamRouter;
 import edu.upenn.cis.stormlite.tuple.Tuple;
+import edu.upenn.cis455.mapreduce.RunJobRoute;
 import spark.Spark;
 
 /**
@@ -77,13 +78,7 @@ public class WorkerServer {
 	        	
         });
         
-        Spark.post("/runjob", (req, res) -> {
-        		log.info("Starting job!");
-
-        		// TODO: start the topology on the DistributedCluster, which should start the dataflow
-				
-				return "Started";
-        });
+        Spark.post("/runjob", new RunJobRoute(cluster));
         
         Spark.post("/pushdata/:stream", (req, res) -> {
 				try {
