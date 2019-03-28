@@ -15,9 +15,10 @@ public class GroupWords implements Job {
 	public void reduce(String key, Iterator<String> values, Context context) {
 		int i = 0;
 		while (values.hasNext()) {
-			context.write(key, "");
+			i++;
 			values.next();
 		}
+		context.write(key, String.valueOf(i));
 		
 	}
 

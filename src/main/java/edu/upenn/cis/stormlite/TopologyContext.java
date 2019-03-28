@@ -94,9 +94,9 @@ public class TopologyContext {
 	
 	public void incSendOutputs(String key) {
 		 if (!sendOutputs.containsKey(key))
-			 sendOutputs.put(key, new Integer(0));
+			 sendOutputs.put(key, Integer.valueOf(0));
 		 
-		 sendOutputs.put(key,  new Integer(sendOutputs.get(key) + 1));
+		 sendOutputs.put(key,  Integer.valueOf(sendOutputs.get(key) + 1));
 	}
 	
 	public Map<String, Integer> getSendOutputs() {

@@ -104,7 +104,7 @@ public class TestMapReduce {
         	MasterServer.registerStatusPage();
         	
 			// Let the server start up
-    		System.out.println("Press [Enter] to launch query, once nodes are alive...");
+    		System.out.println("MASTER node.  Press [Enter] to launch query, once nodes are alive...");
     		(new BufferedReader(new InputStreamReader(System.in))).readLine();
 
 			
@@ -162,7 +162,7 @@ public class TestMapReduce {
 			}        
         }
         
-		System.out.println("Press [Enter] to exit...");
+		System.out.println("Press [Enter] to shut down this node...");
 		(new BufferedReader(new InputStreamReader(System.in))).readLine();
 
 		WorkerServer.shutdown();
