@@ -115,13 +115,13 @@ public class WordSpout implements IRichSpout {
 		
 		    		for (String word: words) {
 		            	log.debug(getExecutorId() + " emitting " + word);
-		    	        this.collector.emit(new Values<Object>(word));
+		    	        this.collector.emit(new Values<Object>(word), getExecutorId());
 		    		}
 		    	} else {
 		    		int pos = r.nextInt(words.length);
 		    		String word = words[pos];
 	            	log.debug(getExecutorId() + " emitting " + word);
-	    	        this.collector.emit(new Values<Object>(word));
+	    	        this.collector.emit(new Values<Object>(word), getExecutorId());
 		    	}
 	    	} catch (IOException e) {
 	    		e.printStackTrace();

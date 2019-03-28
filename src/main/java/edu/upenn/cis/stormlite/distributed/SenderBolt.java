@@ -1,10 +1,12 @@
 package edu.upenn.cis.stormlite.distributed;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.UUID;
 
@@ -96,13 +98,15 @@ public class SenderBolt implements IRichBolt {
     private synchronized void send(Tuple tuple) throws IOException {
     	isEndOfStream = tuple.isEndOfStream();
     	
-		log.debug("Sender is routing " + tuple.toString() + " to " + address + "/" + stream);
+		log.debug("Sender is routing " + tuple.toString() + " from " + tuple.getSourceExecutor() + " to " + address + "/" + stream);
 		
 		HttpURLConnection conn = (HttpURLConnection)url.openConnection();
 		conn.setRequestProperty("Content-Type", "application/json");
 		String jsonForTuple = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(tuple);
 		
 		// TODO: send this to /pushdata/{stream} as a POST!
+
+		///////////
 		
 		conn.disconnect();
     }

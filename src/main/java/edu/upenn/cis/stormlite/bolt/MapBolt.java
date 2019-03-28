@@ -8,10 +8,13 @@ import org.apache.logging.log4j.LogManager;
 
 import edu.upenn.cis.stormlite.OutputFieldsDeclarer;
 import edu.upenn.cis.stormlite.TopologyContext;
+import edu.upenn.cis.stormlite.distributed.ConsensusTracker;
 import edu.upenn.cis.stormlite.distributed.WorkerHelper;
 import edu.upenn.cis.stormlite.routers.StreamRouter;
 import edu.upenn.cis.stormlite.tuple.Fields;
 import edu.upenn.cis.stormlite.tuple.Tuple;
+import edu.upenn.cis.stormlite.tuple.Values;
+import edu.upenn.cis455.mapreduce.Context;
 import edu.upenn.cis455.mapreduce.Job;
 
 /**
@@ -42,6 +45,12 @@ public class MapBolt implements IRichBolt {
 	static Logger log = LogManager.getLogger(MapBolt.class);
 
 	Job mapJob;
+	
+	/**
+	 * This object can help determine when we have
+	 * reached enough votes for EOS
+	 */
+	ConsensusTracker votesForEos;
 
     /**
      * To make it easier to debug: we have a unique ID for each
@@ -50,12 +59,9 @@ public class MapBolt implements IRichBolt {
     String executorId = UUID.randomUUID().toString();
     
 	Fields schema = new Fields("key", "value");
-	
-	/**
-	 * This tracks how many "end of stream" messages we've seen
-	 */
-	int neededVotesToComplete = 0;
 
+	boolean sentEos = false;
+	
 	/**
      * This is where we send our output stream
      */
@@ -83,7 +89,6 @@ public class MapBolt implements IRichBolt {
         	try {
 				mapJob = (Job)Class.forName(mapperClass).newInstance();
 			} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				throw new RuntimeException("Unable to instantiate the class " + mapperClass);
 			}
@@ -93,7 +98,9 @@ public class MapBolt implements IRichBolt {
         	throw new RuntimeException("Mapper class doesn't know how many input spout executors");
         }
         
-        // TODO: determine how many end-of-stream requests are needed
+        // TODO: determine how many end-of-stream requests are needed, create a ConsensusTracker
+        // or whatever else you need to determine when votes reach consensus
+
     }
 
     /**
@@ -105,14 +112,17 @@ public class MapBolt implements IRichBolt {
     	if (!input.isEndOfStream()) {
 	        String key = input.getStringByField("key");
 	        String value = input.getStringByField("value");
-	        log.debug(getExecutorId() + " received " + key + " / " + value);
+	        log.debug(getExecutorId() + " received " + key + " / " + value + " from executor " + input.getSourceExecutor());
 	        
-	        if (neededVotesToComplete == 0)
-	        	throw new RuntimeException("We received data after we thought the stream had ended!");
+	        if (sentEos) {
+	        	throw new RuntimeException("We received data from " + input.getSourceExecutor() + " after we thought the stream had ended!");
+	        }
 	        
 	        // TODO:  call the mapper, and do bookkeeping to track work done
+
     	} else if (input.isEndOfStream()) {
-    		// TODO: determine what to do with EOS
+    		// TODO: determine what to do with EOS messages / votes
+    		log.debug("Processing EOS from " + input.getSourceExecutor());
 
     	}
     }

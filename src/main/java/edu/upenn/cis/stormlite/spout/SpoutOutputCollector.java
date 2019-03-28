@@ -47,14 +47,14 @@ public class SpoutOutputCollector implements IOutputCollector  {
 	 * Emits a tuple to the stream destination
 	 * @param tuple
 	 */
-	public void emit(List<Object> tuple) {
+	public synchronized void emit(List<Object> tuple, String sourceExecutor) {
 		for (StreamRouter router: routers)
-			router.execute(tuple, context);
+			router.execute(tuple, context, sourceExecutor);
 	}
 
-	public void emitEndOfStream() {
+	public synchronized void emitEndOfStream(String sourceExecutor) {
 		for (StreamRouter router: routers)
-			router.executeEndOfStream(context);
+			router.executeEndOfStream(context, sourceExecutor);
 	}
 
 }

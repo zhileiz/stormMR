@@ -76,6 +76,20 @@ public class DistributedCluster implements Runnable {
 	Queue<ITask> taskQueue = new ConcurrentLinkedQueue<ITask>();
 	
 
+	/**
+	 * Sets up the topology, instantiating objects (executors)
+	 * on the local machine.  (Needs to be run on each worker in
+	 * a distributed cluster.)
+	 * 
+	 * Does not start worker threads; that is in startTopology. 
+	 * 
+	 * 
+	 * @param name
+	 * @param config
+	 * @param topo
+	 * @return
+	 * @throws ClassNotFoundException
+	 */
 	public TopologyContext submitTopology(String name, Config config, 
 			Topology topo) throws ClassNotFoundException {
 		theTopology = name;
@@ -96,12 +110,18 @@ public class DistributedCluster implements Runnable {
 		return context;
 	}
 	
+	/**
+	 * Starts the worker thread to process events, starting with the spouts.
+	 */
 	public void startTopology() {
 		// Put the run method in a background thread
 		new Thread(this).start();
 		
 	}
 	
+	/**
+	 * The main executor loop uses Java's ExecutorService to schedule tasks.
+	 */
 	public void run() {
 		while (!quit.get()) {
 			Runnable task = taskQueue.poll();
@@ -113,6 +133,9 @@ public class DistributedCluster implements Runnable {
 		}
 	}
 	
+	/**
+	 * Allocate units of work in the task queue, for each spout
+	 */
 	private void scheduleSpouts() {
 		for (String key: spoutStreams.keySet())
 			for (IRichSpout spout: spoutStreams.get(key)) {

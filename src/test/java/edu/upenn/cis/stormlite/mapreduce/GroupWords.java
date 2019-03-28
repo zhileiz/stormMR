@@ -5,21 +5,22 @@ import java.util.Iterator;
 import edu.upenn.cis455.mapreduce.Context;
 import edu.upenn.cis455.mapreduce.Job;
 
+/**
+ * Sample class to implement both mapper and reducer.
+ * The reducer just returns the key as key and value.
+ * 
+ * @author ZacharyIves
+ *
+ */
 public class GroupWords implements Job {
 	@Override
-	public void map(String key, String value, Context context) {
-		context.write(value, value);
+	public void map(String key, String value, Context context, String sourceExecutor) {
+		context.write(value, value, sourceExecutor);
 	}
 
 	@Override
-	public void reduce(String key, Iterator<String> values, Context context) {
-		int i = 0;
-		while (values.hasNext()) {
-			i++;
-			values.next();
-		}
-		context.write(key, String.valueOf(i));
-		
+	public void reduce(String key, Iterator<String> values, Context context, String sourceExecutor) {
+		context.write(key, key, sourceExecutor);
 	}
 
 }

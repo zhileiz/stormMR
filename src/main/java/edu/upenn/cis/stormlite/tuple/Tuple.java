@@ -38,6 +38,12 @@ public class Tuple implements Serializable {
 	private Fields fields;
 	private List<Object> values;
 	
+	/**
+	 * Primarily for your own debug purposes we will track
+	 * the source node for each tuple
+	 */
+	private String sourceExecutor;
+	
 	private boolean endOfStream = false;
 	
 	private Tuple() {
@@ -50,8 +56,10 @@ public class Tuple implements Serializable {
 	 * 
 	 * @return
 	 */
-	public static Tuple getEndOfStream() {
-		return new Tuple();
+	public static Tuple getEndOfStream(String sourceExecutor) {
+		Tuple t = new Tuple();
+		t.setSourceExecutor(sourceExecutor);
+		return t;
 	}
 
 	/**
@@ -60,10 +68,12 @@ public class Tuple implements Serializable {
 	 * @param fields2
 	 * @param tuple
 	 */
-	public Tuple(Fields fields2, List<Object> tuple) {
+	public Tuple(Fields fields2, List<Object> tuple, String source) {
 		fields = fields2;
 		
 		values = tuple;
+		
+		sourceExecutor = source;
 		
 		if (fields != null && fields.size() != values.size())
 			throw new IllegalArgumentException("Cardinality mismatch between fields and values");
@@ -75,11 +85,13 @@ public class Tuple implements Serializable {
 	 * @param fieldName
 	 * @param value
 	 */
-	public Tuple(String fieldName, Object value) {
+	public Tuple(String fieldName, Object value, String source) {
 		fields = new Fields(fieldName);
 		
 		values = new ArrayList<>();
 		values.add(value);
+		
+		sourceExecutor = source;
 	}
 
 	/**
@@ -155,6 +167,15 @@ public class Tuple implements Serializable {
 		return values.subList(1, values.size());
 	}
 	
+	
+	public String getSourceExecutor() {
+		return sourceExecutor;
+	}
+
+	public void setSourceExecutor(String sourceExecutor) {
+		this.sourceExecutor = sourceExecutor;
+	}
+
 	public boolean isEndOfStream() {
 		return endOfStream;
 	}

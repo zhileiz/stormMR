@@ -83,6 +83,7 @@ public class WorkerServer {
         Spark.post("/pushdata/:stream", (req, res) -> {
 				try {
 					String stream = req.params(":stream");
+					log.debug("Worker received: " + req.body());
 					Tuple tuple = om.readValue(req.body(), Tuple.class);
 					
 					log.debug("Worker received: " + tuple + " for " + stream);
@@ -93,11 +94,14 @@ public class WorkerServer {
 					if (contexts.isEmpty())
 						log.error("No topology context -- were we initialized??");
 					
+					TopologyContext ourContext = contexts.get(contexts.size() - 1);
+					
 					// Instrumentation for tracking progress
 			    	if (!tuple.isEndOfStream())
-			    		contexts.get(contexts.size() - 1).incSendOutputs(router.getKey(tuple.getValues()));
+			    		ourContext.incSendOutputs(router.getKey(tuple.getValues()));
 			    	
-			    	// TODO: handle tuple vs end of stream locally
+			    	// TODO: handle tuple vs end of stream for our *local nodes only*
+			    	// Please look at StreamRouter and its methods (execute, executeEndOfStream, executeLocally, executeEndOfStreamLocally)
 					
 					return "OK";
 				} catch (IOException e) {

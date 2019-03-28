@@ -48,14 +48,14 @@ public class OutputCollector implements IOutputCollector, Context {
 	 * Emits a tuple to the stream destination
 	 * @param tuple
 	 */
-	public void emit(List<Object> tuple) {
+	public synchronized void emit(List<Object> tuple, String sourceExecutor) {
 		for (StreamRouter router: routers)
-			router.execute(tuple, context);
+			router.execute(tuple, context, sourceExecutor);
 	}
 
-	public void emitEndOfStream() {
+	public synchronized void emitEndOfStream(String sourceExecutor) {
 		for (StreamRouter router: routers)
-			router.executeEndOfStream(context);
+			router.executeEndOfStream(context, sourceExecutor);
 	}
 
 	public List<StreamRouter> getRouters() {
@@ -63,10 +63,10 @@ public class OutputCollector implements IOutputCollector, Context {
 	}
 
 	@Override
-	public void write(String key, String value) {
+	public void write(String key, String value, String sourceExecutor) {
 		List<Object> values = new ArrayList<>();
 		values.add(key);
 		values.add(value);
-		emit(values);
+		emit(values, sourceExecutor);
 	}
 }

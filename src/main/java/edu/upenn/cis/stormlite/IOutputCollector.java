@@ -31,12 +31,17 @@ import edu.upenn.cis.stormlite.routers.StreamRouter;
 public interface IOutputCollector {
 	/**
 	 * Propagates a tuple (list of objects) to a particular
-	 * stream
+	 * stream, and documents who produced it
 	 * 
-	 * @param tuple
+	 * @param tuple tuple, as a list, of objects to emit on the stream
+	 * @param sourceExecutor (optional) ID of the executor node emitting the tuple
 	 */
-	public void emit(List<Object> tuple);
-	
+	public void emit(List<Object> tuple, String sourceExecutor);
+
+	/**
+	 * Sets the destination for the collector
+	 * @param router
+	 */
 	public void setRouter(StreamRouter router);
 
 }

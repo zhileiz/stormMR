@@ -126,25 +126,34 @@ public abstract class StreamRouter implements OutputFieldsDeclarer {
 	
 	/**
 	 * Queues up a bolt task (for future scheduling) to process a single 
-	 * stream tuple
+	 * stream tuple.  Will send both to remote and local nodes.
 	 * 
-	 * @param tuple
+	 * @param tuple Tuple to route
+	 * @param context Overall context
+	 * @param sourceExecutor (optional) ID of the sending executor
 	 */
-	public synchronized void execute(List<Object> tuple, TopologyContext context) {
+	public synchronized void execute(List<Object> tuple, TopologyContext context, String sourceExecutor) {
 			List<IRichBolt> bolts = getBoltsFor(tuple);
 			
 			
 			if (bolts != null && !bolts.isEmpty()) {
     		    for (IRichBolt bolt: bolts) {
         			log.debug("Task queued: " + bolt.getClass().getName() + " (" + bolt.getExecutorId() + "): " + tuple.toString());
-    				context.addStreamTask(new BoltTask(bolt, new Tuple(schema, tuple)));
+    				context.addStreamTask(new BoltTask(bolt, new Tuple(schema, tuple, sourceExecutor)));
 				}
 
 			} else
 				throw new RuntimeException("Unable to find a bolt for the tuple");
 	}
 	
-	public synchronized void executeLocally(List<Object> tuple, TopologyContext context) {
+	/**
+	 * Execute a routing task for a tuple, ONLY sending to local bolt executors and NOT to remote ones
+	 * 
+	 * @param tuple Tuple to route
+	 * @param context Overall context
+	 * @param sourceExecutor (optional) ID of the sending executor
+	 */
+	public synchronized void executeLocally(List<Object> tuple, TopologyContext context, String sourceExecutor) {
 			List<IRichBolt> bolts = getBoltsFor(tuple);
 			
 			for (IRichBolt bolt: bolts) {
@@ -154,7 +163,7 @@ public abstract class StreamRouter implements OutputFieldsDeclarer {
     			
     			log.debug("Task queued from other worker: " + bolt.getClass().getName() + " (" + bolt.getExecutorId() + "): " + tuple.toString());
     			if (bolt != null)
-    				context.addStreamTask(new BoltTask(bolt, new Tuple(schema, tuple)));
+    				context.addStreamTask(new BoltTask(bolt, new Tuple(schema, tuple, sourceExecutor)));
     			else
     				throw new RuntimeException("Unable to find a bolt for the tuple");
 			}
@@ -164,21 +173,25 @@ public abstract class StreamRouter implements OutputFieldsDeclarer {
 	}
 
 	/**
-	 * Process a tuple with fields
+	 * Process a tuple with fields.  Will send both to remote and local node executors.
 	 * 
-	 * @param tuple
+	 * @param tuple Tuple to route
+	 * @param context Overall context
+	 * @param sourceExecutor (optional) ID of the sending executor
 	 */
-	public void execute(Tuple tuple, TopologyContext context) {
-		execute(tuple.getValues(), context);
+	public void execute(Tuple tuple, TopologyContext context, String sourceExecutor) {
+		execute(tuple.getValues(), context, sourceExecutor);
 	}
 
 	/**
-	 * Process a tuple with fields, locally only
+	 * Process a tuple with fields, sending only to local node executors.
 	 * 
-	 * @param tuple
+	 * @param tuple Tuple to route
+	 * @param context Overall context
+	 * @param sourceExecutor (optional) ID of the sending executor
 	 */
-	public void executeLocally(Tuple tuple, TopologyContext context) {
-		executeLocally(tuple.getValues(), context);
+	public void executeLocally(Tuple tuple, TopologyContext context, String sourceExecutor) {
+		executeLocally(tuple.getValues(), context, sourceExecutor);
 	}
 	/**
 	 * Sets the schema of the object
@@ -189,22 +202,31 @@ public abstract class StreamRouter implements OutputFieldsDeclarer {
 	}
 
 	/**
-	 * Executes the bolt over end-of-stream
+	 * Executes all executor bolts, local and remote, with an end of stream message.  Note
+	 * that EOSes are always broadcast, independent of the grouping policy.
 	 * 
-	 * @param context
+	 * @param context Overall context
+	 * @param sourceExecutor (optional) ID of the sending executor
 	 */
-	public synchronized void executeEndOfStream(TopologyContext context) {
+	public synchronized void executeEndOfStream(TopologyContext context, String sourceExecutor) {
 		for (IRichBolt bolt: getBolts()) {
 			log.debug("Task queued: " + bolt.getClass().getName() + " (" + bolt.getExecutorId() + "): (EOS)");
-			context.addStreamTask(new BoltTask(bolt, Tuple.getEndOfStream()));
+			context.addStreamTask(new BoltTask(bolt, Tuple.getEndOfStream(sourceExecutor)));
 		}
 	}
 
-	public synchronized void executeEndOfStreamLocally(TopologyContext context) {
+	/**
+	 * Executes all executor bolts on the local machine, with an end of stream message.  Note
+	 * that EOSes are always broadcast, independent of the grouping policy.
+	 * 
+	 * @param context Overall context
+	 * @param sourceExecutor (optional) ID of the sending executor
+	 */
+	public synchronized void executeEndOfStreamLocally(TopologyContext context, String sourceExecutor) {
 		for (IRichBolt bolt: getBolts())
 			if (!isRemoteBolt(bolt)) {
 				log.debug("Task queued from other worker: " + bolt.getClass().getName() + " (" + bolt.getExecutorId() + "): (EOS)");
-				context.addStreamTask(new BoltTask(bolt, Tuple.getEndOfStream()));
+				context.addStreamTask(new BoltTask(bolt, Tuple.getEndOfStream(sourceExecutor)));
 			}
 	}
 

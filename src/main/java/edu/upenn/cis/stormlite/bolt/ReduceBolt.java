@@ -1,17 +1,16 @@
 package edu.upenn.cis.stormlite.bolt;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import edu.upenn.cis.stormlite.OutputFieldsDeclarer;
 import edu.upenn.cis.stormlite.TopologyContext;
-import edu.upenn.cis.stormlite.distributed.WorkerHelper;
+import edu.upenn.cis.stormlite.distributed.ConsensusTracker;
 import edu.upenn.cis.stormlite.routers.StreamRouter;
 import edu.upenn.cis.stormlite.tuple.Fields;
 import edu.upenn.cis.stormlite.tuple.Tuple;
@@ -46,7 +45,13 @@ public class ReduceBolt implements IRichBolt {
 	
 	Job reduceJob;
 
-    /**
+	/**
+	 * This object can help determine when we have
+	 * reached enough votes for EOS
+	 */
+	ConsensusTracker votesForEos;
+
+	/**
      * To make it easier to debug: we have a unique ID for each
      * instance of the WordCounter, aka each "executor"
      */
@@ -54,7 +59,7 @@ public class ReduceBolt implements IRichBolt {
     
 	Fields schema = new Fields("key", "value");
 	
-	boolean sentEof = false;
+	boolean sentEos = false;
 	
 	/**
 	 * Buffer for state, by key
@@ -99,7 +104,8 @@ public class ReduceBolt implements IRichBolt {
         	throw new RuntimeException("Reducer class doesn't know how many map bolt executors");
         }
 
-        // TODO: determine how many EOS votes needed
+        // TODO: determine how many EOS votes needed and set up ConsensusTracker (or however
+        // you want to handle consensus)
     }
 
     /**
@@ -108,29 +114,22 @@ public class ReduceBolt implements IRichBolt {
      */
     @Override
     public synchronized void execute(Tuple input) {
-    	if (sentEof) {
+    	if (sentEos) {
 	        if (!input.isEndOfStream())
 	        	throw new RuntimeException("We received data after we thought the stream had ended!");
     		// Already done!
 		} else if (input.isEndOfStream()) {
 			
-			// TODO: only if at EOS do we trigger the reduce operation and output all state
-
-			sentEof = true;
-    	} else {
-    		// TODO: this is a plain ol' hash map, replace it with BerkeleyDB
+    		log.debug("Processing EOS from " + input.getSourceExecutor());
+			// TODO: only if at EOS do we trigger the reduce operation over what's in BerkeleyDB for
+    		// the associated key, and output all state
     		
-    		String key = input.getStringByField("key");
-	        String value = input.getStringByField("value");
-	        log.debug(getExecutorId() + " received " + key + " / " + value);
-	        
-	        synchronized (stateByKey) {
-		        if (!stateByKey.containsKey(key))
-		        	stateByKey.put(key, new ArrayList<>());
-		        else
-		        	log.debug("Adding item to " + key + " / " + stateByKey.get(key).size());
-		        stateByKey.get(key).add(value);
-	        }
+    		// You may find votesForEos useful to determine when consensus is reacked
+
+    	} else {
+    		// TODO: collect the tuples by key into BerkeleyDB (until EOS arrives, in the above condition)
+    		log.debug("Processing " + input.toString() + " from " + input.getSourceExecutor());
+    		
     	}        
     }
 
@@ -173,4 +172,5 @@ public class ReduceBolt implements IRichBolt {
 	public Fields getSchema() {
 		return schema;
 	}
+
 }

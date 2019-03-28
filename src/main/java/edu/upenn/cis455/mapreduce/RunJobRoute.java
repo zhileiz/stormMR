@@ -7,7 +7,9 @@ import spark.Route;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import edu.upenn.cis.stormlite.Config;
 import edu.upenn.cis.stormlite.DistributedCluster;
+import edu.upenn.cis.stormlite.TopologyBuilder;
 import edu.upenn.cis455.mapreduce.worker.WorkerServer;
 
 public class RunJobRoute implements Route {
@@ -26,7 +28,7 @@ public class RunJobRoute implements Route {
 		
 		
 		//////////////////
-		
+		cluster.startTopology();
 		/////////////////
 		
 		return "Started";
