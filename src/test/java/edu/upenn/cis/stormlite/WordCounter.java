@@ -137,4 +137,5 @@ public class WordCounter implements IRichBolt {
 	public Fields getSchema() {
 		return schema;
 	}
+
 }
