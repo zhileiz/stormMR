@@ -27,10 +27,6 @@ public class RunJobRoute implements Route {
 		// TODO: start the topology on the DistributedCluster, which should start the dataflow
 		
 		
-		//////////////////
-		cluster.startTopology();
-		/////////////////
-		
 		return "Started";
 	}
 
