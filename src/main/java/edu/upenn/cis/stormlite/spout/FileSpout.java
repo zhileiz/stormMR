@@ -117,7 +117,7 @@ public abstract class FileSpout implements IRichSpout {
      * to targets
      */
     @Override
-    public synchronized void nextTuple() {
+    public synchronized boolean nextTuple() {
     	if (reader != null && !sentEof) {
 	    	try {
 		    	String line = reader.readLine();
@@ -137,8 +137,10 @@ public abstract class FileSpout implements IRichSpout {
 	    	} catch (IOException e) {
 	    		e.printStackTrace();
 	    	}
-    	}
-        Thread.yield();
+	        Thread.yield();
+	        return true;
+    	} else
+    		return false;
     }
 
     @Override

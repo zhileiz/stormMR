@@ -179,7 +179,7 @@ public abstract class StreamRouter implements OutputFieldsDeclarer {
 	 * @param context Overall context
 	 * @param sourceExecutor (optional) ID of the sending executor
 	 */
-	public void execute(Tuple tuple, TopologyContext context, String sourceExecutor) {
+	public synchronized void execute(Tuple tuple, TopologyContext context, String sourceExecutor) {
 		execute(tuple.getValues(), context, sourceExecutor);
 	}
 
@@ -190,7 +190,7 @@ public abstract class StreamRouter implements OutputFieldsDeclarer {
 	 * @param context Overall context
 	 * @param sourceExecutor (optional) ID of the sending executor
 	 */
-	public void executeLocally(Tuple tuple, TopologyContext context, String sourceExecutor) {
+	public synchronized void executeLocally(Tuple tuple, TopologyContext context, String sourceExecutor) {
 		executeLocally(tuple.getValues(), context, sourceExecutor);
 	}
 	/**

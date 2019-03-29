@@ -105,7 +105,7 @@ public class WordSpout implements IRichSpout {
      * to targets
      */
     @Override
-    public void nextTuple() {
+    public boolean nextTuple() {
     	if (reader != null) {
 	    	try {
 		    	String line = reader.readLine();
@@ -128,6 +128,7 @@ public class WordSpout implements IRichSpout {
 	    	}
     	}
         Thread.yield();
+        return true;
     }
 
     @Override

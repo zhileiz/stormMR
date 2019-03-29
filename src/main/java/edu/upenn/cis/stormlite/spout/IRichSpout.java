@@ -60,9 +60,13 @@ public interface IRichSpout extends IStreamSource {
 	/**
 	 * When this method is called, Storm is requesting that the Spout emit 
 	 * tuples to the output collector. This method should be non-blocking, 
-	 * so if the Spout has no tuples to emit, this method should return. 
+	 * so if the Spout has no tuples to emit, this method should return.
+	 * 
+	 * In the updated version of the API, we'll return false if the
+	 * spout has reached end-of-stream and doesn't need to be scheduled
+	 * any longer.
 	 */
-	public void nextTuple();
+	public boolean nextTuple();
 
 	public void setRouter(StreamRouter router);
 

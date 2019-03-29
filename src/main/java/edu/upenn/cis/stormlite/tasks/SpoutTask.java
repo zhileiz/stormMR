@@ -40,10 +40,11 @@ public class SpoutTask implements ITask {
 	@Override
 	public void run() {
 		synchronized (spout ) {
-			spout.nextTuple();
+			boolean remaining = spout.nextTuple();
 			
 			// Schedule ourselves again at the end of the queue
-			queue.add(this);
+			if (remaining)
+				queue.add(this);
 		}
 	}
 	

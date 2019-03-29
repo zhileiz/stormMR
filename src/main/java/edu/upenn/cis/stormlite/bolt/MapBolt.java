@@ -108,7 +108,7 @@ public class MapBolt implements IRichBolt {
      * counter and outputting a result
      */
     @Override
-    public synchronized void execute(Tuple input) {
+    public synchronized boolean execute(Tuple input) {
     	if (!input.isEndOfStream()) {
 	        String key = input.getStringByField("key");
 	        String value = input.getStringByField("value");
@@ -125,6 +125,7 @@ public class MapBolt implements IRichBolt {
     		log.debug("Processing EOS from " + input.getSourceExecutor());
 
     	}
+    	return true;
     }
 
     /**

@@ -40,9 +40,11 @@ public class PrintBolt implements IRichBolt {
 	}
 
 	@Override
-	public void execute(Tuple input) {
+	public boolean execute(Tuple input) {
 		if (!input.isEndOfStream())
 			System.out.println(getExecutorId() + ": " + input.toString());
+		
+		return true;
 	}
 
 	@Override

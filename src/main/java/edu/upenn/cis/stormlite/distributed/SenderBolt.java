@@ -79,13 +79,14 @@ public class SenderBolt implements IRichBolt {
      * counter and outputting a result
      */
     @Override
-    public void execute(Tuple input) {
+    public synchronized boolean execute(Tuple input) {
     		try {
 				send(input);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+    		return true;
     }
     
     /**
@@ -95,7 +96,7 @@ public class SenderBolt implements IRichBolt {
      * @param tuple
      * @throws IOException 
      */
-    private synchronized void send(Tuple tuple) throws IOException {
+    private void send(Tuple tuple) throws IOException {
     	isEndOfStream = tuple.isEndOfStream();
     	
 		log.debug("Sender is routing " + tuple.toString() + " from " + tuple.getSourceExecutor() + " to " + address + "/" + stream);

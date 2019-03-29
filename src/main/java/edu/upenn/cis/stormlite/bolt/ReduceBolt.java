@@ -113,11 +113,12 @@ public class ReduceBolt implements IRichBolt {
      * until we hit end of stream
      */
     @Override
-    public synchronized void execute(Tuple input) {
+    public synchronized boolean execute(Tuple input) {
     	if (sentEos) {
 	        if (!input.isEndOfStream())
 	        	throw new RuntimeException("We received data after we thought the stream had ended!");
     		// Already done!
+	        return false;
 		} else if (input.isEndOfStream()) {
 			
     		log.debug("Processing EOS from " + input.getSourceExecutor());
@@ -131,6 +132,7 @@ public class ReduceBolt implements IRichBolt {
     		log.debug("Processing " + input.toString() + " from " + input.getSourceExecutor());
     		
     	}        
+    	return true;
     }
 
     /**

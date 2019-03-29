@@ -71,7 +71,7 @@ public class DistributedCluster implements Runnable {
 	
 	ObjectMapper mapper = new ObjectMapper();
 	
-	ExecutorService executor = Executors.newFixedThreadPool(10);
+	ExecutorService executor = Executors.newFixedThreadPool(1);
 	
 	Queue<ITask> taskQueue = new ConcurrentLinkedQueue<ITask>();
 	
@@ -124,7 +124,7 @@ public class DistributedCluster implements Runnable {
 	 */
 	public void run() {
 		while (!quit.get()) {
-			Runnable task = taskQueue.poll();
+			ITask task = taskQueue.poll();
 			if (task == null)
 				Thread.yield();
 			else {

@@ -80,7 +80,7 @@ public class WordCounter implements IRichBolt {
      * counter and outputting a result
      */
     @Override
-    public void execute(Tuple input) {
+    public boolean execute(Tuple input) {
         String word = input.getStringByField("word");
         int count;
         log.debug(getExecutorId() + " received " + word);
@@ -93,6 +93,8 @@ public class WordCounter implements IRichBolt {
 
         wordCounter.put(word, count);
         collector.emit(new Values<Object>(word, String.valueOf(count)), getExecutorId());
+        
+        return true;
     }
 
     /**

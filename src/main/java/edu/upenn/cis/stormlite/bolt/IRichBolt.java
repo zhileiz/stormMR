@@ -33,10 +33,16 @@ public interface IRichBolt extends IStreamSource {
 	public void cleanup();
 	
 	/**
-	 * Processes a tuple
+	 * Processes a tuple.
+	 * 
+	 * 
+	 * In the updated version of the API, we'll return false if the
+	 * bolt has reached end-of-stream and doesn't need to be scheduled
+	 * any longer.
+	 * 
 	 * @param input
 	 */
-	public void execute(Tuple input);
+	public boolean execute(Tuple input);
 	
 	/**
 	 * Called when this task is initialized
