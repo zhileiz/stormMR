@@ -21,7 +21,7 @@ public class WorkerStatusRoute implements Route {
     }
 
     private WorkerRecord getRecordFromReq(Request req) {
-        String ip = req.ip() + ": " + req.queryParams("port");
+        String ip = req.ip() + ":" + req.queryParams("port");
         String status = req.queryParams("status");
         String keysRead = req.queryParams("keysRead");
         String keysWritten = req.queryParams("keysWritten");

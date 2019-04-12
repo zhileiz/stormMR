@@ -112,7 +112,7 @@ public class MapBolt implements IRichBolt {
     	if (!input.isEndOfStream()) {
 	        String key = input.getStringByField("key");
 	        String value = input.getStringByField("value");
-	        log.debug(getExecutorId() + " received " + key + " / " + value + " from executor " + input.getSourceExecutor());
+	        System.out.println("[ MAPBOLT 💡: ]" + getExecutorId() + " received " + key + " / " + value + " from executor " + input.getSourceExecutor());
 	        
 	        if (sentEos) {
 	        	throw new RuntimeException("We received data from " + input.getSourceExecutor() + " after we thought the stream had ended!");

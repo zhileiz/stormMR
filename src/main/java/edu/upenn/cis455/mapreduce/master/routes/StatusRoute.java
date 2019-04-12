@@ -22,9 +22,15 @@ public class StatusRoute implements Route {
         TemplateView view = new TemplateView();
         addTitleToView("h3", view, "Worker Status");
         addTableToView(view);
+        addButtonToView(view);
         addTitleToView("h3", view, "Submit Job");
         addFormToView(view);
         return view.render();
+    }
+
+    private void addButtonToView(TemplateView view) {
+        SimpleButton sb = new SimpleButton("/startAllWorkers", !this.master.getJobOnHold(), "Start Job");
+        view.insertElement(new ViewElement(sb.render()));
     }
 
     private void addTableToView(TemplateView view) {

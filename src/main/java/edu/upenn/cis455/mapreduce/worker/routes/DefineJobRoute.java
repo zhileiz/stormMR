@@ -20,8 +20,8 @@ public class DefineJobRoute implements Route {
         try {
             workerJob = om.readValue(req.body(), WorkerJob.class);
             try {
-                System.out.println("Processing job definition request" + workerJob.getConfig().get("job") +
-                        " on machine " + workerJob.getConfig().get("workerIndex"));
+                System.out.println("Processing job definition request '" + workerJob.getConfig().get("job") +
+                        "' on machine " + workerJob.getConfig().get("workerIndex"));
                 TopologyContext context = WorkerCenter.getInstance().submitTopologyToCluster(workerJob);
                 WorkerCenter.getInstance().addContext(context);
                 WorkerCenter.getInstance().addTopology(workerJob.getConfig().get("job"));

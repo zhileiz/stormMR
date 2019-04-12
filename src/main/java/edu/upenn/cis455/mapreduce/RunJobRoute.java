@@ -22,7 +22,7 @@ public class RunJobRoute implements Route {
 
 	@Override
 	public Object handle(Request request, Response response) throws Exception {
-		log.info("Starting job!");
+		System.out.println("Starting Job Here");
 
 		// TODO: start the topology on the DistributedCluster, which should start the dataflow
 		
