@@ -161,7 +161,19 @@
 							</arguments>
 						</configuration>
 					</execution>
-					<!--  TODO: run worker2 -->
+					<execution>
+						<id>worker2</id>
+						<goals>
+							<goal>java</goal>
+						</goals>
+						<configuration>
+							<mainClass>edu.upenn.cis455.mapreduce.worker.WorkerServer</mainClass>
+							<arguments>
+								<argument>8002</argument>
+								<argument>1</argument>
+							</arguments>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
 		</plugins>
