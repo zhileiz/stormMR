@@ -11,6 +11,7 @@ import edu.upenn.cis.stormlite.spout.FileSpout;
 import edu.upenn.cis.stormlite.tuple.Fields;
 import edu.upenn.cis455.mapreduce.job.WordFileSpout;
 import edu.upenn.cis455.mapreduce.master.MasterConfig;
+import edu.upenn.cis455.mapreduce.worker.WorkerUpdateBolt;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -26,7 +27,7 @@ public class JobRoute implements Route {
     private String FILE_SPOUT = "FILE_SPOUT";
     private String MAP_BOLT = "MAP_BOLT";
     private String REDUCER_BOLT = "REDUCER_BOLT";
-    private String PRINT_BOLT = "PRINT_BOLT";
+    private String UPDATE_BOLT = "UPDATE_BOLT";
 
     private MasterConfig config;
 
@@ -98,8 +99,8 @@ public class JobRoute implements Route {
 
         TopologyBuilder builder = new TopologyBuilder();
         builder.setSpout(FILE_SPOUT, fileSpout, 1);
-        builder.setBolt(MAP_BOLT, mapBolt, job.numMapper).shuffleGrouping(FILE_SPOUT);
-        builder.setBolt(REDUCER_BOLT, reduceBolt, job.numReducer).fieldsGrouping(MAP_BOLT, new Fields());
+        builder.setBolt(MAP_BOLT, mapBolt, job.numMapper).fieldsGrouping(FILE_SPOUT, new Fields("key"));
+        builder.setBolt(REDUCER_BOLT, reduceBolt, job.numReducer).fieldsGrouping(MAP_BOLT, new Fields("key"));
         return builder.createTopology();
     }
 

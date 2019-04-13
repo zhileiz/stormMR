@@ -29,7 +29,7 @@ public class WorkerCenter {
     static DistributedCluster cluster = new DistributedCluster();
 
     List<TopologyContext> contexts;
-    int portNum = 0, keysRead = 0, keysWritten = 0;
+    Integer portNum = 0, keysRead = 0, keysWritten = 0;
     WorkerStatus status;
 
     private WorkerCenter() {
@@ -66,7 +66,7 @@ public class WorkerCenter {
         cluster.shutdown();
     }
 
-    public void updateMaster() throws MalformedURLException, IOException {
+    public synchronized void updateMaster() throws MalformedURLException, IOException {
         StringBuilder sb = new StringBuilder();
         sb.append(MASTER_LOCATION + "/workerStatus?");
         sb.append("port=" + String.valueOf(this.portNum));
@@ -74,6 +74,53 @@ public class WorkerCenter {
         sb.append("&keysRead=" + keysRead);
         sb.append("&keysWritten=" + keysWritten);
         System.out.println(sb.toString());
+        URL url = new URL(sb.toString());
+        HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+        conn.setRequestMethod("POST");
+        conn.connect();
+        printResponse(conn);
+    }
+
+    public void updateKeysRead() {
+        synchronized (keysRead) {
+            keysRead++;
+        }
+        try {
+            updateMaster();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateKeysWritten() {
+        synchronized (keysWritten) {
+            keysWritten++;
+        }
+        try {
+            updateMaster();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateWorkerStatus(WorkerStatus st) {
+        if (st == status) { return; }
+        synchronized (status) {
+            this.status = st;
+        }
+        try {
+            updateMaster();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendResultToMaster(String key, String value) throws MalformedURLException, IOException {
+        StringBuilder sb = new StringBuilder();
+        sb.append(MASTER_LOCATION + "/addResult?");
+        sb.append("port=" + portNum);
+        sb.append("&key=" + key);
+        sb.append("&result=" + value);
         URL url = new URL(sb.toString());
         HttpURLConnection conn = (HttpURLConnection)url.openConnection();
         conn.setRequestMethod("POST");

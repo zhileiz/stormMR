@@ -34,10 +34,12 @@ public class StatusRoute implements Route {
     }
 
     private void addTableToView(TemplateView view) {
-        SimpleTable tb = new SimpleTable("ip:port", "status", "keysRead", "keysWritten");
+        SimpleTable tb = new SimpleTable("ip:port", "status", "keysRead", "keysWritten", "Results");
         List<WorkerRecord> records = master.getWorkerRecords();
         for (WorkerRecord rec : records) {
-            tb.addRow(rec.getIp(), rec.getStatus(), rec.getKeysRead(), rec.getKeysWritten());
+            String s = master.getAllResultsFor(rec.getIp());
+            tb.addRow(rec.getIp(), rec.getStatus(),
+                      rec.getKeysRead(), rec.getKeysWritten(), s);
         }
         view.insertElement(new ViewElement(tb.render()));
     }

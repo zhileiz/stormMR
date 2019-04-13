@@ -1,10 +1,7 @@
 package edu.upenn.cis455.mapreduce.master;
 
 import edu.upenn.cis455.mapreduce.WorkerStatus;
-import edu.upenn.cis455.mapreduce.master.routes.JobRoute;
-import edu.upenn.cis455.mapreduce.master.routes.StartJobRoute;
-import edu.upenn.cis455.mapreduce.master.routes.StatusRoute;
-import edu.upenn.cis455.mapreduce.master.routes.WorkerStatusRoute;
+import edu.upenn.cis455.mapreduce.master.routes.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,8 +14,11 @@ public class MasterConfig {
     private HashMap<String, WorkerRecord> workerRecords;
     private Boolean jobOnHold;
 
+    private HashMap<String, List<String>> reduceResults;
+
     public MasterConfig(int portNum) {
         workerRecords = new HashMap<>();
+        reduceResults = new HashMap<>();
         setUpPort(portNum);
         setUpRoutes();
         this.jobOnHold = false;
@@ -34,6 +34,7 @@ public class MasterConfig {
         post("/workerStatus", new WorkerStatusRoute(this));
         post("/job", new JobRoute(this));
         get("/startAllWorkers", new StartJobRoute(this));
+        post("/addResult", new ResultRoute(this));
     }
 
     public List<WorkerRecord> getWorkerRecords() {
@@ -59,6 +60,27 @@ public class MasterConfig {
         synchronized (workerRecords) {
             workerRecords.put(record.ip, record);
         }
+    }
+
+    public void addResult(String ipAndPort, String key, String value) {
+        String s = "(key:" + key + ", value:" + value + ")\n";
+        if (!reduceResults.containsKey(ipAndPort)) {
+            List<String> results = new ArrayList<>();
+            results.add(s);
+            reduceResults.put(ipAndPort, results);
+        } else {
+            reduceResults.get(ipAndPort).add(s);
+        }
+    }
+
+    public String getAllResultsFor(String key) {
+        List<String> values = reduceResults.get(key);
+        if (values == null) { return ""; }
+        StringBuilder sb = new StringBuilder();
+        for (String value : values) {
+            sb.append(value);
+        }
+        return sb.toString();
     }
 
     public synchronized void setJobOnHold(Boolean jobOnHold) {

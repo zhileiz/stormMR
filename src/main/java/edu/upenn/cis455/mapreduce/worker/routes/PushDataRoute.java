@@ -19,9 +19,9 @@ public class PushDataRoute implements Route {
         om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
         try {
             String stream = req.params(":stream");
-            System.out.println("Worker received: " + req.body());
+//            System.out.println("Worker received: " + req.body());
             Tuple tuple = om.readValue(req.body(), Tuple.class);
-            System.out.println("Worker received: " + tuple + " for " + stream);
+            System.out.println("Worker received: " + tuple + " from remote");
 
             // Find the destination stream and route to it
             WorkerCenter ws = WorkerCenter.getInstance();
@@ -38,8 +38,11 @@ public class PushDataRoute implements Route {
                 ourContext.incSendOutputs(router.getKey(tuple.getValues()));
             }
 
-            // TODO: handle tuple vs end of stream for our *local nodes only*
-            // Please look at StreamRouter and its methods (execute, executeEndOfStream, executeLocally, executeEndOfStreamLocally)
+            if (!tuple.isEndOfStream()) {
+                router.executeLocally(tuple, ourContext, tuple.getSourceExecutor());
+            } else {
+                router.executeEndOfStreamLocally(ourContext, tuple.getSourceExecutor());
+            }
 
             return "OK";
         } catch (IOException e) {

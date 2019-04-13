@@ -158,8 +158,10 @@ public abstract class StreamRouter implements OutputFieldsDeclarer {
 			
 			for (IRichBolt bolt: bolts) {
     			// If we got a remote bolt
-    			if (isRemoteBolt(bolt))
-    			     continue;
+    			if (isRemoteBolt(bolt)) {
+					System.out.println("[ 🧨 ] skipped " + tuple +" because the bolt is remote.");
+					continue;
+				}
     			
     			log.debug("Task queued from other worker: " + bolt.getClass().getName() + " (" + bolt.getExecutorId() + "): " + tuple.toString());
     			if (bolt != null)

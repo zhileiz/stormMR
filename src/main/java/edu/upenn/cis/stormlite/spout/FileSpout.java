@@ -134,6 +134,11 @@ public abstract class FileSpout implements IRichSpout {
 	    	        this.collector.emitEndOfStream(getExecutorId());
 	    	        sentEof = true;
 		    	}
+		    	try {
+		    		Thread.sleep(100);
+				} catch (Exception e) {
+		    		e.printStackTrace();
+				}
 	    	} catch (IOException e) {
 	    		e.printStackTrace();
 	    	}

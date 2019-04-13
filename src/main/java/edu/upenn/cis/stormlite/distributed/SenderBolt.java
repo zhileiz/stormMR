@@ -54,7 +54,8 @@ public class SenderBolt implements IRichBolt {
 
     public SenderBolt(String address, String stream) {
     	this.stream = stream;
-    	this.address = address;
+    	this.address = address.replaceAll("\\s","");;
+
     }
     
 	/**
@@ -66,7 +67,7 @@ public class SenderBolt implements IRichBolt {
         mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
         this.context = context;
 		try {
-			url = new URL(address + "/pushdata/" + stream);
+			url = new URL(address.trim() + "/pushdata/" + stream);
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -98,16 +99,22 @@ public class SenderBolt implements IRichBolt {
      */
     private void send(Tuple tuple) throws IOException {
     	isEndOfStream = tuple.isEndOfStream();
-    	
-		log.debug("Sender is routing " + tuple.toString() + " from " + tuple.getSourceExecutor() + " to " + address + "/" + stream);
-		
+
+//		System.out.println("Sender is routing " + tuple.toString() + " from " + tuple.getSourceExecutor() + " to " + address + "/" + stream);
+//		System.out.println(url);
 		HttpURLConnection conn = (HttpURLConnection)url.openConnection();
 		conn.setRequestProperty("Content-Type", "application/json");
 		String jsonForTuple = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(tuple);
-		
-		// TODO: send this to /pushdata/{stream} as a POST!
 
-		///////////
+		conn.setDoOutput(true);
+		conn.setRequestMethod("POST");
+		conn.setRequestProperty("Content-Type", "application/json");
+		OutputStream os = conn.getOutputStream();
+		byte[] toSend = jsonForTuple.getBytes();
+		os.write(toSend);
+		os.flush();
+		int code = conn.getResponseCode();
+//		System.out.println("[🐦 Response Code: ] " + code);
 		
 		conn.disconnect();
     }

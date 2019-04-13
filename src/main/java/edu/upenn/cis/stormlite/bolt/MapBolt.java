@@ -1,8 +1,11 @@
 package edu.upenn.cis.stormlite.bolt;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
 
+import edu.upenn.cis455.mapreduce.WorkerStatus;
+import edu.upenn.cis455.mapreduce.worker.WorkerCenter;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
@@ -71,6 +74,9 @@ public class MapBolt implements IRichBolt {
     
     public MapBolt() {
     }
+
+
+
     
 	/**
      * Initialization, just saves the output stream destination
@@ -97,10 +103,13 @@ public class MapBolt implements IRichBolt {
         if (!stormConf.containsKey("spoutExecutors")) {
         	throw new RuntimeException("Mapper class doesn't know how many input spout executors");
         }
+
+		System.out.println(stormConf.toString());
         
         // TODO: determine how many end-of-stream requests are needed, create a ConsensusTracker
         // or whatever else you need to determine when votes reach consensus
-
+		int votesNeeded = stormConf.get("workerList").split(",").length;
+		votesForEos = new ConsensusTracker(votesNeeded);
     }
 
     /**
@@ -110,6 +119,7 @@ public class MapBolt implements IRichBolt {
     @Override
     public synchronized boolean execute(Tuple input) {
     	if (!input.isEndOfStream()) {
+			WorkerCenter.getInstance().updateWorkerStatus(WorkerStatus.MAPPING);
 	        String key = input.getStringByField("key");
 	        String value = input.getStringByField("value");
 	        System.out.println("[ MAPBOLT 💡: ]" + getExecutorId() + " received " + key + " / " + value + " from executor " + input.getSourceExecutor());
@@ -117,13 +127,22 @@ public class MapBolt implements IRichBolt {
 	        if (sentEos) {
 	        	throw new RuntimeException("We received data from " + input.getSourceExecutor() + " after we thought the stream had ended!");
 	        }
-	        
-	        // TODO:  call the mapper, and do bookkeeping to track work done
+
+			Context outputContext = new Context() {
+				@Override
+				public void write(String key, String value, String sourceExecutor) {
+					collector.write(key, value, sourceExecutor);
+					WorkerCenter.getInstance().updateKeysRead();
+				}
+			};
+	        mapJob.map(key, value, outputContext, getExecutorId());
 
     	} else if (input.isEndOfStream()) {
-    		// TODO: determine what to do with EOS messages / votes
-    		log.debug("Processing EOS from " + input.getSourceExecutor());
-
+			if (this.votesForEos.voteForEos(input.getSourceExecutor())) {
+				System.out.println("[🛑] Should Emit to Reducer");
+				collector.emitEndOfStream(this.getExecutorId());
+				WorkerCenter.getInstance().updateWorkerStatus(WorkerStatus.WAITING);
+			}
     	}
     	return true;
     }

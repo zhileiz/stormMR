@@ -1,10 +1,10 @@
 package edu.upenn.cis.stormlite.bolt;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
+import edu.upenn.cis455.mapreduce.Context;
+import edu.upenn.cis455.mapreduce.WorkerStatus;
+import edu.upenn.cis455.mapreduce.worker.WorkerCenter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -72,6 +72,8 @@ public class ReduceBolt implements IRichBolt {
     private OutputCollector collector;
     
     private TopologyContext context;
+
+    List<Tuple> tuples = new ArrayList<>();
     
     int neededVotesToComplete = 0;
     
@@ -104,8 +106,10 @@ public class ReduceBolt implements IRichBolt {
         	throw new RuntimeException("Reducer class doesn't know how many map bolt executors");
         }
 
-        // TODO: determine how many EOS votes needed and set up ConsensusTracker (or however
-        // you want to handle consensus)
+		int numWorkers = stormConf.get("workerList").split(",").length;
+        int numMaps = Integer.parseInt(stormConf.getOrDefault("mapExecutors", "1"));
+        this.neededVotesToComplete = numWorkers * numMaps;
+        this.votesForEos = new ConsensusTracker(neededVotesToComplete);
     }
 
     /**
@@ -122,13 +126,40 @@ public class ReduceBolt implements IRichBolt {
 		} else if (input.isEndOfStream()) {
 			
     		log.debug("Processing EOS from " + input.getSourceExecutor());
-			// TODO: only if at EOS do we trigger the reduce operation over what's in BerkeleyDB for
     		// the associated key, and output all state
-    		
-    		// You may find votesForEos useful to determine when consensus is reacked
+			System.out.println("[👌] Received EOS");
+			if (votesForEos.voteForEos(input.getSourceExecutor())) {
+				Context outputContext = new Context() {
+					@Override
+					public void write(String key, String value, String sourceExecutor) {
+						try {
+							WorkerCenter.getInstance().sendResultToMaster(key, value);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						System.out.println("[👏 RESULT: ] " + key + " : " + value);
+					}
+				};
+				System.out.println(stateByKey.toString());
+				for (String key : stateByKey.keySet()) {
+					WorkerCenter.getInstance().updateKeysWritten();
+					reduceJob.reduce(key, stateByKey.get(key).iterator(), outputContext, getExecutorId());
+				}
+				WorkerCenter.getInstance().updateWorkerStatus(WorkerStatus.IDLE);
+			}
 
     	} else {
-    		// TODO: collect the tuples by key into BerkeleyDB (until EOS arrives, in the above condition)
+			WorkerCenter.getInstance().updateWorkerStatus(WorkerStatus.REDUCING);
+    		String key = input.getStringByField("key");
+    		String value = input.getStringByField("value");
+			List<String> values;
+    		if (stateByKey.containsKey(key)) {
+				values = stateByKey.get(key);
+			} else {
+    			values = new ArrayList<>();
+			}
+			values.add(value);
+			stateByKey.put(key, values);
     		log.debug("Processing " + input.toString() + " from " + input.getSourceExecutor());
     		
     	}        
